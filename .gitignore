@@ -1,0 +1,7 @@
+node_modules
+.env
+**/*.js
+**/*.js.map
+logs
+.yarn
+keycloak.json

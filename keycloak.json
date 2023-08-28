@@ -1,0 +1,8 @@
+{
+  "realm": "btegermany",
+  "bearer-only": true,
+  "auth-server-url": "https://auth.bte-germany.de",
+  "ssl-required": "external",
+  "resource": "mapbackend",
+  "confidential-port": 0
+}
