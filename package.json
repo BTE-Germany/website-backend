@@ -24,7 +24,6 @@
     "@types/imagemin": "^8.0.1",
     "@types/imagemin-webp": "^7.0.0",
     "@types/jsonwebtoken": "^9.0.2",
-    "@types/minio": "^7.1.1",
     "@types/node": "^20.5.9",
     "@types/validator": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
