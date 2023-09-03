@@ -6,7 +6,7 @@
  * This project is released under the MIT license.
  */
 
-import {Client, Intents, MessageEmbed} from "discord.js";
+import {ActivityType, Client} from "discord.js";
 import Core from "../Core.js";
 
 class DiscordIntegration {
@@ -19,10 +19,14 @@ class DiscordIntegration {
     }
 
     setup(): void {
-        const client = new Client({intents: [Intents.FLAGS.GUILDS]});
+        const client = new Client({intents: ["Guilds"]});
         client.login(process.env.DISCORD_TOKEN).then(r => {
             this.core.getLogger().info(`Logged in to Discord as ${client.user.username}`);
-            client.user.setActivity({type: "WATCHING", name: "Bewerbungen an", url: "https://buildthe.earth/apply"})
+            client.user.setActivity({
+                name: "Bewerbungen an",
+                url: "https://buildthe.earth/apply",
+                type: ActivityType.Watching
+            })
             client.user.setStatus("dnd")
         });
         this.client = client;
