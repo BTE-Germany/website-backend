@@ -8,7 +8,7 @@
     "start": "node index.js",
     "start-nodemon": "nodemon index.js",
     "start:migrate": "npx prisma migrate deploy && node index.js",
-    "build": "yarn install --pure-lockfile && tsc",
+    "build": "tsc",
     "start:prod": "node index.js"
   },
   "type": "module",
