@@ -85,7 +85,7 @@ class Routes {
                 response.status(401).send({error: 'User not found'});
                 return;
             }
-            paymentController.syncRoles(user);
+            paymentController.syncRoles(user.id);
         }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()));
 
         router.addRoute(RequestMethods.POST, "/payments/stripe-webhook", (request, response) => {
