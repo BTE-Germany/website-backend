@@ -15,6 +15,7 @@ import checkNewUser from "./utils/CheckNewUserMiddleware.js";
 import LinkController from "../../controllers/LinkController.js";
 import {body} from "express-validator";
 import PaymentController from "../../controllers/PaymentController.js";
+import express from "express";
 
 
 class Routes {
@@ -40,6 +41,10 @@ class Routes {
         const paymentController: PaymentController = new PaymentController(this.web.getCore());
 
 
+        router.addRoute(RequestMethods.GET, "/users/@me", (request, response) => {
+            userController.getOwnUserInfo(request, response);
+        }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()))
+
         router.addRoute(RequestMethods.GET, "/users/@me/links", (request, response) => {
             userController.getOwnLinks(request, response);
         }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()))
@@ -57,10 +62,35 @@ class Routes {
             linkController.handleUnlinkMinecraft(request, response);
         }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()))
 
-        router.addRoute(RequestMethods.POST, "/payments/donation", (request, response) => {
-            paymentController.getDonationSession(request, response);
-        })
+        router.addRoute(RequestMethods.POST, "/payments/plus/session", (request, response) => {
+            paymentController.getPlusPaymentSession(request, response);
+        }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()), body('billingPeriod').isString().isIn(['monthly', 'yearly', 'onetime']));
 
+        router.addRoute(RequestMethods.GET, "/payments/portal", (request, response) => {
+            paymentController.handleBillingPortalRequest(request, response);
+        }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()));
+
+        router.addRoute(RequestMethods.GET, "/payments/subscription", (request, response) => {
+            paymentController.handleSubscriptionInfo(request, response);
+        }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()));
+
+
+        router.addRoute(RequestMethods.GET, "/payments/plus/sync", async (request, response) => {
+            let user = await this.web.getCore().getPrisma().user.findUnique({
+                where: {
+                    ssoId: request.kauth.grant.access_token.content.sub
+                }
+            });
+            if (!user) {
+                response.status(401).send({error: 'User not found'});
+                return;
+            }
+            paymentController.syncRoles(user);
+        }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()));
+
+        router.addRoute(RequestMethods.POST, "/payments/stripe-webhook", (request, response) => {
+            paymentController.handleStripeWebhook(request, response);
+        }, express.raw({type: 'application/json'}));
     }
 }
 

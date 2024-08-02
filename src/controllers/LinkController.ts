@@ -86,9 +86,8 @@ class LinkController {
                 id: linkCode.id
             }
         })
-        /*
-        TODO: Add mcuuid to keycloak when keycloak not broken anymore
-        let kcUser = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({
+
+        /*let kcUser = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({
             id: request.kauth.grant.access_token.content.sub
         })
         await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.update({

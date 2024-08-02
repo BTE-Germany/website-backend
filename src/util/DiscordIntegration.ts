@@ -31,6 +31,10 @@ class DiscordIntegration {
         });
         this.client = client;
     }
+
+    getClient(): Client {
+        return this.client;
+    }
 }
 
 export default DiscordIntegration;

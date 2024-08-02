@@ -32,7 +32,19 @@ class Web {
     }
 
     public startWebserver() {
-        this.app.use(express.json());
+        this.app.use(
+            (
+                req: express.Request,
+                res: express.Response,
+                next: express.NextFunction
+            ): void => {
+                if (req.originalUrl.includes("stripe-webhook")) {
+                    next();
+                } else {
+                    express.json()(req, res, next);
+                }
+            }
+        );
         this.app.use(session({
             secret: process.env.SESSION_SECRET,
             resave: false,

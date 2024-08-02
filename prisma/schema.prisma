@@ -11,10 +11,12 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  ssoId        String        @unique
-  accountLinks AccountLink[]
-  roles        String        @default("[]")
+  id               String        @id @default(uuid())
+  ssoId            String        @unique
+  accountLinks     AccountLink[]
+  roles            String        @default("[]")
+  plus             Boolean       @default(false)
+  stripeCustomerId String?
 }
 
 enum AccountLinkType {

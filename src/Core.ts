@@ -14,8 +14,8 @@ import DiscordIntegration from "./util/DiscordIntegration.js";
 import S3Controller from "./util/S3Controller.js";
 import * as winston from "winston";
 import Keycloak from "keycloak-connect";
-import adyen from '@adyen/api-library';
-const { Client } = adyen;
+import Stripe from 'stripe';
+
 
 class Core {
     web: Web;
@@ -26,7 +26,7 @@ class Core {
     discord: DiscordIntegration;
     s3: S3Controller;
     logger: winston.Logger;
-    adyenClient: adyen.Client;
+    stripeClient: Stripe;
 
     constructor() {
         this.setUpLogger();
@@ -43,8 +43,10 @@ class Core {
         })
         this.discord = new DiscordIntegration(this);
         this.s3 = new S3Controller(this);
-        this.getLogger().debug(process.env.ADYEN_KEY)
-        this.adyenClient = new Client({ apiKey: process.env.ADYEN_KEY, environment: process.env.ADYEN_ENV as Environment })
+        this.stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY, {
+
+        });
+
     }
 
     private setUpLogger(): void {
@@ -84,7 +86,6 @@ class Core {
     public getDiscord = (): DiscordIntegration => this.discord;
     public getWeb = (): Web => this.web;
     public getS3 = (): S3Controller => this.s3;
-    public getAdyenClient = (): adyen.Client => this.adyenClient;
 
 }
 

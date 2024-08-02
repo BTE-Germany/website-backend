@@ -7,6 +7,7 @@ RUN yarn install
 RUN yarn run build
 
 
+
 FROM node:lts
 WORKDIR /app
 COPY package.json ./

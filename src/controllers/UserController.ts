@@ -26,6 +26,15 @@ class UserController {
         response.send(links)
     }
 
+    public async getOwnUserInfo(request, response) {
+        const user = await this.core.getPrisma().user.findUnique({
+            where: {
+                ssoId: request.kauth.grant.access_token.content.sub
+            }
+        })
+        response.send(user)
+    }
+
 }
 
 export default UserController;
