@@ -78,7 +78,7 @@ class PaymentController {
             if (user.stripeCustomerId) {
                 params.customer = user.stripeCustomerId;
             }
-            const session = await this.core.stripeClient.checkout.sessions.create();
+            const session = await this.core.stripeClient.checkout.sessions.create(params);
             response.send({url: session.url});
         } else {
             let params: any  = {
