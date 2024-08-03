@@ -59,7 +59,7 @@ class PaymentController {
         }
 
         if (request.body.billingPeriod === 'onetime') {
-            const session = await this.core.stripeClient.checkout.sessions.create({
+            let params: any = {
                 line_items: [
                     {
                         price: this.getPriceId(request.body.billingPeriod),
@@ -71,14 +71,17 @@ class PaymentController {
                         userId: user.id
                     },
                 },
-                customer: user.stripeCustomerId ?? "",
                 mode: 'payment',
                 success_url: "https://bte-germany.de/store/plus/success?session_id={CHECKOUT_SESSION_ID}",
                 allow_promotion_codes: true,
-            });
+            };
+            if (user.stripeCustomerId) {
+                params.customer = user.stripeCustomerId;
+            }
+            const session = await this.core.stripeClient.checkout.sessions.create();
             response.send({url: session.url});
         } else {
-            const session = await this.core.stripeClient.checkout.sessions.create({
+            let params: any  = {
                 line_items: [
                     {
                         price: this.getPriceId(request.body.billingPeriod),
@@ -93,9 +96,13 @@ class PaymentController {
                 mode: request.body.billingPeriod === 'onetime' ? 'payment' : 'subscription',
                 success_url: "https://bte-germany.de/store/plus/success?session_id={CHECKOUT_SESSION_ID}",
                 allow_promotion_codes: true,
-                customer: user.stripeCustomerId ?? "",
                 payment_method_collection: 'if_required',
-            });
+            }
+
+            if (user.stripeCustomerId) {
+                params.customer = user.stripeCustomerId;
+            }
+            const session = await this.core.stripeClient.checkout.sessions.create(params);
             response.send({url: session.url});
         }
 
