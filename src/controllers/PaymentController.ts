@@ -81,7 +81,7 @@ class PaymentController {
             const session = await this.core.stripeClient.checkout.sessions.create(params);
             response.send({url: session.url});
         } else {
-            let params: any  = {
+            let params: any = {
                 line_items: [
                     {
                         price: this.getPriceId(request.body.billingPeriod),
@@ -123,6 +123,7 @@ class PaymentController {
 
         switch (event.type) {
             case 'customer.subscription.updated':
+            case 'customer.subscription.created':
                 const subscriptionUpdated = event.data.object;
                 if (subscriptionUpdated.status === 'active') {
                     const user = await this.core.prisma.user.findUnique({
@@ -247,17 +248,6 @@ class PaymentController {
         response.send({url: portal.url});
     }
 
-    private getPriceId(billingPeriod: string) {
-        switch (billingPeriod) {
-            case 'monthly':
-                return process.env.STRIPE_PRICE_MONTHLY;
-            case 'yearly':
-                return process.env.STRIPE_PRICE_YEARLY;
-            case 'onetime':
-                return process.env.STRIPE_PRICE_ONETIME;
-        }
-    }
-
     public async syncRoles(userId: string) {
         const user = await this.core.prisma.user.findUnique({
             where: {
@@ -276,13 +266,13 @@ class PaymentController {
             }).then(link => {
                 const member = guild.members.fetch(link.providerId).then(member => {
 
-                        if (user.plus) {
-                            member.roles.add(process.env.DISCORD_PLUS_ROLE);
-                            this.addMinecraftRole(user);
-                        } else {
-                            member.roles.remove(process.env.DISCORD_PLUS_ROLE);
-                            this.removeMinecraftRole(user);
-                        }
+                    if (user.plus) {
+                        member.roles.add(process.env.DISCORD_PLUS_ROLE);
+                        this.addMinecraftRole(user);
+                    } else {
+                        member.roles.remove(process.env.DISCORD_PLUS_ROLE);
+                        this.removeMinecraftRole(user);
+                    }
 
                 }).catch(e => {
                     this.core.getLogger().error(e);
@@ -295,6 +285,17 @@ class PaymentController {
         }).catch(e => {
             this.core.getLogger().error(e);
         });
+    }
+
+    private getPriceId(billingPeriod: string) {
+        switch (billingPeriod) {
+            case 'monthly':
+                return process.env.STRIPE_PRICE_MONTHLY;
+            case 'yearly':
+                return process.env.STRIPE_PRICE_YEARLY;
+            case 'onetime':
+                return process.env.STRIPE_PRICE_ONETIME;
+        }
     }
 
     private async addMinecraftRole(userId: User) {
