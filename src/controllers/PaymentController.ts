@@ -195,6 +195,34 @@ class PaymentController {
                     }
                 });
                 this.syncRoles(user.id);
+                break;
+            case 'checkout.session.completed':
+                const session = event.data.object;
+                // get checkout session
+                this.core.stripeClient.checkout.sessions.retrieve(session.id).then(async session => {
+                    // get if lifetime plus is in session
+                    if (session.line_items.data.some(item => item.price.id === process.env.STRIPE_PRICE_ONETIME)) {
+                        const user = await this.core.prisma.user.findUnique({
+                            where: {
+                                id: session.metadata.userId
+                            }
+                        });
+                        if (!user) {
+                            response.status(400).send({error: 'User not found'});
+                            return;
+                        }
+                        await this.core.prisma.user.update({
+                            where: {
+                                id: user.id
+                            },
+                            data: {
+                                plus: true
+                            }
+                        });
+                        this.syncRoles(user.id);
+                    }
+                });
+                break;
 
         }
         response.send({received: true});
